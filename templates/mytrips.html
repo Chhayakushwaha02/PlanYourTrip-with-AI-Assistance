@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+body{
+    margin:0;
+    font-family: Arial;
+
+    background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* TITLE */
+.page-title{
+    text-align:center;
+    font-size:28px;
+    margin-top:20px;
+    font-weight:600;
+    color:#444;
+}
+
+/* CONTAINER */
+.trip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 30px;
+    justify-content: center;
+}
+
+/* CARD */
+.trip-card {
+    width: 260px;
+    padding: 20px;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.trip-card:hover {
+    transform: translateY(-5px);
+}
+
+/* DESTINATION */
+.trip-destination {
+    font-size: 16px;
+    color: #777;
+    margin-top: 5px;
+}
+
+/* MODAL BACKGROUND */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.3);
+    justify-content: center;
+    align-items: center;
+}
+
+/* MODAL BOX */
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 350px;
+    animation: popup 0.3s ease;
+}
+
+/* POPUP ANIMATION */
+@keyframes popup {
+    from {transform: scale(0.8); opacity:0;}
+    to {transform: scale(1); opacity:1;}
+}
+
+.trip-info {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+    float: right;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #ff6b81;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #e55060;
+}
+
+</style>
+
+<div class="page-title">💖 My Trips</div>
+
+<div class="trip-container">
+
+{% for trip in trips %}
+
+<div class="trip-card" onclick="openModal('{{loop.index}}')">
+    <div><b>Trip {{loop.index}}</b></div>
+    <div class="trip-destination">{{trip.destination}}</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal-{{loop.index}}">
+
+    <div class="modal-content">
+
+        <span class="close-btn" onclick="closeModal('{{loop.index}}')">&times;</span>
+
+        <h3 style="text-align:center;">{{trip.destination}}</h3>
+
+        <div class="trip-info"><b>📅 Date:</b> {{trip.start_date}} → {{trip.end_date}}</div>
+        <div class="trip-info"><b>📍 From:</b> {{trip.starting_location}}</div>
+        <div class="trip-info"><b>💰 Budget:</b> ₹{{trip.budget}}</div>
+        <div class="trip-info"><b>⏳ Duration:</b> {{trip.days}} days</div>
+        <div class="trip-info"><b>👥 Type:</b> {{trip.trip_type}}</div>
+        <div class="trip-info"><b>📝 About:</b> Trip from {{trip.starting_location}} to {{trip.destination}}</div>
+
+        <button class="delete-btn" onclick="deleteTrip('{{trip.id}}')">
+            🗑 Delete Trip
+        </button>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<script>
+
+// OPEN MODAL
+function openModal(id){
+    document.getElementById("modal-" + id).style.display = "flex";
+}
+
+// CLOSE MODAL
+function closeModal(id){
+    document.getElementById("modal-" + id).style.display = "none";
+}
+
+// CLOSE WHEN CLICK OUTSIDE
+window.onclick = function(event){
+    document.querySelectorAll(".modal").forEach(modal=>{
+        if(event.target === modal){
+            modal.style.display = "none";
+        }
+    });
+}
+
+// DELETE FUNCTION
+function deleteTrip(tripId){
+
+    if(confirm("Delete this trip?")){
+
+        fetch("/delete_trip/" + tripId,{
+            method:"POST"
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            if(data.success){
+                location.reload();
+            }else{
+                alert("❌ Failed to delete");
+            }
+        })
+        .catch(()=>{
+            alert("❌ Error");
+        });
+
+    }
+}
+
+</script>
+
+{% endblock %}

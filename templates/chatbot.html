@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* 🌅 FULL PAGE BACKGROUND IMAGE */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    background-image: url("https://images.unsplash.com/photo-1501785888041-af3ef285b470"); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    overflow: hidden; /* remove scrollbars */
+}
+
+/* LIGHT OVERLAY FOR READABILITY */
+.overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(90, 89, 89, 0.6);
+    z-index: -1;
+}
+
+/* MAIN CONTAINER CENTERED */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+    text-align: center;
+    padding: 20px;
+}
+
+/* TITLE */
+h2 {
+    color: #fffdfd;
+    margin-bottom: 5px; /* less space */
+    font-size: 25px;
+}
+
+/* PROMPT BOX */
+.prompt-box {
+    background: rgba(255,255,255,0.95);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #dbe6ff;
+    margin-bottom: 15px; /* less space */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 700px;
+    text-align: left;
+}
+
+/* CHATBOX IFRAME */
+.chatbox-container {
+    width: 500%;
+    max-width: 700px;
+    height: 500px; /* keep the same size as before */
+    border-radius: 12px;
+    overflow: hidden; /* removes scrollbars inside iframe */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: none;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+</style>
+
+<div class="overlay"></div>
+
+<div class="container">
+<h2 style="text-align:center;">Your Travel Assistant</h2>
+
+{% if prompt %}
+<div style="
+width:700px;
+margin:auto;
+background:#f4f8ff;
+padding:20px;
+border-radius:10px;
+border:1px solid #dbe6ff;
+margin-bottom:20px;
+">
+
+<b>Your Trip Request:</b>
+
+<pre style="white-space:pre-wrap;">{{ prompt }}</pre>
+
+</div>
+{% endif %}
+
+<div style="
+width:700px;
+height:520px;
+margin:auto;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+background:white;
+">
+
+<iframe
+src="https://www.chatbase.co/chatbot-iframe/tUyQQ1fnGZB5dapRagXR5"
+width="100%"
+height="100%"
+frameborder="0">
+</iframe>
+
+</div>
+
+{% endblock %}

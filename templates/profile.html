@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+/* BACKGROUND IMAGE */
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+
+    background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* OVERLAY */
+.overlay{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.45);
+    z-index:-1;
+}
+
+
+.profile-container{
+display:flex;
+gap:30px;
+}
+
+/* LEFT PROFILE SIDEBAR */
+
+.profile-sidebar{
+width:250px;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.profile-sidebar img{
+width:90px;
+border-radius:50%;
+margin-bottom:10px;
+}
+
+.profile-sidebar h3{
+margin:10px 0;
+}
+
+.profile-sidebar a{
+display:block;
+margin:12px 0;
+padding:10px;
+background:#4CAF50;
+color:white;
+text-decoration:none;
+border-radius:5px;
+}
+
+.profile-sidebar a:hover{
+background:#388E3C;
+}
+
+/* RIGHT SIDE USER DETAILS */
+
+.profile-details{
+flex:1;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.detail{
+margin:10px 0;
+font-size:16px;
+}
+
+</style>
+
+<div class="profile-container">
+
+<!-- LEFT SIDE -->
+
+<div class="profile-sidebar">
+
+<img src="https://cdn-icons-png.flaticon.com/512/847/847969.png">
+
+<h3>{{user.name}}</h3>
+
+<a href="/edit_profile">Edit Profile</a>
+
+<a href="/change_password">Change Password</a>
+
+<a href="/logout">Logout</a>
+
+</div>
+
+<!-- RIGHT SIDE -->
+
+<div class="profile-details">
+
+<h2>User Profile</h2>
+
+<p><b>Name:</b> {{user.username}}</p>
+
+<p><b>Email:</b> {{user.email}}</p>
+
+<p><b>Mobile:</b> {{user.mobile}}</p>
+
+<p><b>Gender:</b> {{user.gender}}</p>
+
+<p><b>Age:</b> {{user.age}}</p>
+
+<p><b>Member Since:</b> {{user.created_at}}</p>
+
+</div>
+
+{% endblock %}

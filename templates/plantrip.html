@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+/* 🌸 SHARP BACKGROUND IMAGE (NO BLUR) */
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+
+    background-image: url("https://images.unsplash.com/photo-1526772662000-3f88f10405ff");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    overflow: hidden; /* remove scrollbars */
+}
+
+/* ✨ VERY LIGHT OVERLAY (NO BLUR EFFECT) */
+body::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.4); /* light only */
+    z-index:-1;
+}
+
+
+/* MAIN CONTAINER */
+.container{
+    display:flex;
+    justify-content:center;
+    padding-top:30px;
+}
+
+/* CARD */
+.card{
+    width:550px;
+    background: rgba(255,255,255,0.9);
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* TITLE */
+.card h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+/* ROW */
+.row{
+    display:flex;
+    gap:10px;
+}
+
+.row input{
+    flex:1;
+}
+
+
+/* INPUTS */
+.card input,
+.card select{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+/* BUTTON BASE */
+.card button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:30px;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+/* SAVE BUTTON */
+#saveBtn{
+    background:#ff6f91;
+    margin-bottom:10px;
+}
+
+#saveBtn:hover{
+    background:#e85a78;
+}
+
+/* GENERATE BUTTON */
+#generateBtn{
+    background:#6c8cff;
+    margin-bottom:10px;
+}
+
+#generateBtn:hover{
+    background:#4e6fe0;
+}
+
+#generateBtn:disabled{
+    background:#aaa;
+    cursor:not-allowed;
+}
+
+</style>
+
+<div class="container">
+<div class="card">
+
+<h2>Plan Your Trip ✈️</h2>
+
+<form id="tripForm">
+
+<!-- DATE ROW -->
+<div class="row">
+<input type="date" name="start_date" required>
+<input type="date" name="end_date" required>
+</div>
+
+<!-- LOCATIONS -->
+<input type="text" name="starting_location" placeholder="Starting Location *" required>
+<input type="text" name="destination" placeholder="Destination *" required>
+
+<!-- BUDGET + DAYS -->
+<div class="row">
+<input type="number" name="budget" placeholder="Budget (₹) *" required>
+<input type="number" name="days" placeholder="Duration (Days) *" required>
+</div>
+
+<!-- TRIP TYPE -->
+<select name="trip_type" required>
+<option value="">Select Trip Type *</option>
+<option>Solo Trip</option>
+<option>Couple Trip</option>
+<option>Family Trip</option>
+<option>Group Trip</option>
+</select>
+
+<button type="submit" id="saveBtn">💖 Save Details</button>
+
+<button type="button" id="generateBtn" disabled>
+✨ Generate Trip Plan
+</button>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+let tripData = "";
+
+// ✅ SAVE DETAILS WITH VALIDATION
+document.getElementById("tripForm").onsubmit = function(e){
+
+e.preventDefault();
+
+let form = document.getElementById("tripForm");
+
+// VALIDATION CHECK
+if(!form.checkValidity()){
+    form.reportValidity(); // shows error + focuses
+    return;
+}
+
+let formData = new FormData(form);
+
+// ✅ PROFESSIONAL PROMPT (FIXED)
+tripData = `
+🧳Travel Planning Request:
+
+Please generate a detailed and well-structured travel plan based on the following inputs:
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📍 Trip Details
+━━━━━━━━━━━━━━━━━━━━━━━
+
+• Starting Location : ${formData.get("starting_location")}
+• Destination       : ${formData.get("destination")}
+
+• Start Date        : ${formData.get("start_date")}
+• End Date          : ${formData.get("end_date")}
+
+• Trip Duration     : ${formData.get("days")} days
+• Total Budget      : ₹${formData.get("budget")}
+• Trip Type         : ${formData.get("trip_type")}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🧠 Instructions for Trip Planning
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Kindly provide a comprehensive travel plan that includes:
+
+1. 🚆 Best Transportation Options  
+   - Suggest the most suitable travel modes (train, flight, bus, etc.)  
+   - Include approximate cost and travel time  
+
+2. 🌦 Weather Awareness  
+   - Expected weather conditions during the travel dates  
+   - Important precautions and packing suggestions  
+
+3. 💰 Budget Breakdown  
+   - Estimated cost distribution (travel, stay, food, activities)  
+   - Ensure it fits within the given budget  
+
+4. 📅 Day-wise Itinerary  
+   - Create a clear and organized plan for each day  
+   - Include major attractions and activities  
+
+5. 🧭 Travel Tips  
+   - Safety tips, local insights, and must-know information  
+   - Any cost-saving or smart travel suggestions  
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ The response should be:
+✔ Clear and well-structured  
+✔ Easy to read (use headings & bullet points)  
+✔ Practical and realistic  
+`;
+
+// Save to DB
+fetch("/save_trip", {
+method: "POST",
+body: formData
+})
+.then(res => res.text())
+.then(() => {
+alert("✅ Trip saved successfully!");
+document.getElementById("generateBtn").disabled = false;
+})
+.catch(() => {
+alert("❌ Error saving trip");
+});
+
+};
+
+
+// ✅ GENERATE TRIP
+document.getElementById("generateBtn").onclick = function(){
+
+if(!tripData){
+alert("Please save details first!");
+return;
+}
+
+// COPY
+navigator.clipboard.writeText(tripData)
+.then(() => {
+
+    // POPUP
+    alert("✅ Your trip details copied!\nPress Ctrl + V to paste in chatbot.");
+
+    // REDIRECT
+    setTimeout(() => {
+        window.location.href = "/chatbot";
+    }, 200);
+
+})
+.catch(() => {
+alert("❌ Copy failed!");
+});
+
+};
+
+</script>
+
+{% endblock %}

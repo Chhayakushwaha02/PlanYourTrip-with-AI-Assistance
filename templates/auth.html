@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auth</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(120deg,#d7ecff,#ffd6e8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .auth-container {
+        background-color: #ffffff;
+        padding: 40px 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 360px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #000000;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input, select, button {
+        margin-bottom: 15px;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #000000;
+        font-size: 14px;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #007BFF;
+        box-shadow: 0 0 5px #007BFF;
+    }
+
+    button {
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .login-btn, .register-btn, #send-email-btn {
+        background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+        color: white;
+        font-weight: bold;
+    }
+
+    .login-btn:hover, .register-btn:hover, #send-email-btn:hover {
+        background: linear-gradient(135deg, #fbc2eb, #a18cd1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .google-btn, #reset-password-btn {
+        background: linear-gradient(135deg, #4facfe, #00c6ff);
+        color: white;
+        font-weight: bold;
+    }
+
+    .google-btn:hover, #reset-password-btn:hover {
+        background: linear-gradient(135deg, #00c6ff, #4facfe);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .message {
+        font-size: 14px;
+        text-align: center;
+        margin-top: -5px;
+    }
+
+    .toggle {
+        text-align: center;
+        cursor: pointer;
+        color: #007BFF;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    #forgot-password-form, #register-form, #reset-password-fields {
+        display: none;
+    }
+
+    #reset-message {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    #alert-message {
+        display: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        text-align: center;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="auth-container">
+    <h2 id="form-title">Login</h2>
+
+    <div id="alert-message"></div>
+
+    <!-- LOGIN FORM -->
+    <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit" class="login-btn">Login</button>
+        <button type="button" class="google-btn" id="google-login-btn">Continue with Google</button>
+        <p class="message" id="login-message"></p>
+        <p class="toggle"><a href="#" id="forgot-password-btn">Forgot Password?</a></p>
+    </form>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <form id="forgot-password-form">
+        <input type="email" id="forgot-email" placeholder="Email" required>
+        <div id="reset-password-fields">
+            <input type="password" id="new-password" placeholder="New Password" required>
+            <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+        </div>
+        <button type="button" id="send-email-btn">Verify Email</button>
+        <button type="button" id="reset-password-btn">Reset Password</button>
+        <p id="reset-message"></p>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="register-form">
+        <input type="text" id="reg-name" placeholder="Name" required>
+        <input type="number" id="reg-age" placeholder="Age" required>
+        <select id="reg-gender" required>
+            <option value="">Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+        <input type="text" id="reg-mobile" placeholder="Mobile Number" required>
+        <input type="email" id="reg-email" placeholder="Email" required>
+        <input type="password" id="reg-password" placeholder="Password" required>
+        <button type="submit" class="register-btn">Register</button>
+        <p class="message" id="register-message"></p>
+    </form>
+
+    <p class="toggle" id="toggle-form">Don't have an account? Register</p>
+</div>
+
+<script>
+const toggleForm = document.getElementById("toggle-form");
+const loginForm = document.getElementById("login-form");
+const registerForm = document.getElementById("register-form");
+const forgotForm = document.getElementById("forgot-password-form");
+const formTitle = document.getElementById("form-title");
+const forgotBtn = document.getElementById("forgot-password-btn");
+const sendEmailBtn = document.getElementById("send-email-btn");
+const resetFields = document.getElementById("reset-password-fields");
+const resetBtn = document.getElementById("reset-password-btn");
+const resetMessage = document.getElementById("reset-message");
+const alertEl = document.getElementById("alert-message");
+
+// Toggle Login/Register
+toggleForm.onclick = () => {
+    loginForm.style.display = "none";
+    forgotForm.style.display = "none";
+    resetFields.style.display = "none";
+    sendEmailBtn.style.display = "inline-block";
+    resetBtn.style.display = "none";
+    resetMessage.innerText = "";
+    alertEl.style.display = "none";
+
+    if(registerForm.style.display === "none") {
+        registerForm.style.display = "flex";
+        formTitle.innerText = "Register";
+        toggleForm.innerText = "Already have an account? Login";
+    } else {
+        registerForm.style.display = "none";
+        loginForm.style.display = "flex";
+        formTitle.innerText = "Login";
+        toggleForm.innerText = "Don't have an account? Register";
+    }
+};
+
+// Show Forgot Password
+forgotBtn.onclick = (e) => {
+    e.preventDefault();
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    forgotForm.style.display = "flex";
+    formTitle.innerText = "Forgot Password";
+    alertEl.style.display = "none";
+};
+
+// --- AJAX: Verify Email ---
+sendEmailBtn.onclick = async () => {
+    const email = document.getElementById("forgot-email").value;
+
+    const res = await fetch("/forgot_password_ajax", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        resetFields.style.display = "block";
+        sendEmailBtn.style.display = "none";
+        resetBtn.style.display = "block";
+        resetMessage.innerText = data.message;
+        resetMessage.style.color = "#0f5132";
+    } else {
+        resetMessage.innerText = data.message;
+        resetMessage.style.color = "#842029";
+    }
+};
+
+// --- AJAX: Reset Password ---
+resetBtn.onclick = async () => {
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    const res = await fetch("/reset_password_ajax", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ new_password: newPassword, confirm_password: confirmPassword })
+    });
+
+    const data = await res.json();
+
+    resetMessage.innerText = data.message;
+    if (data.success) {
+        resetMessage.style.color = "#0f5132";
+        setTimeout(() => {
+            forgotForm.style.display = "none";
+            loginForm.style.display = "flex";
+            formTitle.innerText = "Login";
+            toggleForm.innerText = "Don't have an account? Register";
+            resetFields.style.display = "none";
+            sendEmailBtn.style.display = "inline-block";
+            resetBtn.style.display = "none";
+            resetMessage.innerText = "";
+        }, 2000);
+    } else {
+        resetMessage.style.color = "#842029";
+    }
+};
+
+// --- LOGIN FORM SUBMISSION ---
+loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            alertEl.style.display = "block";
+            alertEl.style.background = "#f8d7da";
+            alertEl.style.color = "#842029";
+            alertEl.innerText = data.message;
+        }
+    } catch (err) {
+        console.error("Login error:", err);
+    }
+});
+
+// --- REGISTRATION FORM SUBMISSION ---
+registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("reg-name").value;
+    const age = document.getElementById("reg-age").value;
+    const gender = document.getElementById("reg-gender").value;
+    const mobile = document.getElementById("reg-mobile").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-password").value;
+
+    try {
+        const res = await fetch("/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: username, age, gender, mobile, email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            alertEl.style.display = "block";
+            alertEl.style.background = "#d1e7dd";
+            alertEl.style.color = "#0f5132";
+            alertEl.innerText = data.message;
+
+            registerForm.reset();
+            registerForm.style.display = "none";
+            loginForm.style.display = "flex";
+            formTitle.innerText = "Login";
+            toggleForm.innerText = "Don't have an account? Register";
+        } else {
+            alertEl.style.display = "block";
+            alertEl.style.background = "#f8d7da";
+            alertEl.style.color = "#842029";
+            alertEl.innerText = data.message;
+        }
+    } catch (err) {
+        console.error("Registration error:", err);
+    }
+});
+
+// Google Login
+document.getElementById("google-login-btn").addEventListener("click", () => {
+    window.location.href = "/login/google";
+});
+</script>
+</body>
+</html>

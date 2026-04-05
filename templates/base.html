@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>PlanYourTrip with AI Assistance</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#d7ecff,#ffd6e8);
+}
+
+/* NAVBAR */
+
+.navbar{
+background:white;
+padding:15px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-size:20px;
+font-weight:bold;
+color:#0077ff;
+}
+
+.navlinks a{
+margin-left:20px;
+text-decoration:none;
+color:#333;
+font-weight:bold;
+}
+
+.navlinks a:hover{
+color:#0077ff;
+}
+
+/* CONTENT */
+
+.container{
+padding:60px;
+text-align:center;
+}
+
+/* BUTTONS */
+
+.main-buttons{
+margin-top:40px;
+}
+
+.main-buttons a{
+text-decoration:none;
+}
+
+.btn{
+padding:14px 25px;
+margin:10px;
+border:none;
+border-radius:25px;
+background:#0077ff;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+.btn:hover{
+background:#005bd1;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:12px;
+margin-top:30px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+text-align:center;
+}
+
+th{
+background:#0077ff;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="logo">PlanYourTrip with AI Assistance</div>
+
+<div class="navlinks">
+<a href="/dashboard">Dashboard</a>
+<a href="/plantrip">Plan Trip</a>
+<a href="/mytrips">My Trips</a>
+<a href="/calculator">Budget Calculator</a>
+<a href="/explore">Explore</a>
+<a href="/chatbot">Chatbot</a>
+<a href="/profile">Profile</a>
+<a href="/logout">Logout</a>
+</div>
+
+</div>
+
+
+<!-- PAGE CONTENT -->
+
+<div class="container">
+
+{% block content %}
+{% endblock %}
+
+</div>
+
+
+</body>
+</html>

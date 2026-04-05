@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* =======================
+   FULL PAGE BACKGROUND
+======================= */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* BACKGROUND IMAGE */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+}
+
+/* DARK OVERLAY */
+body::after {
+    content: "";
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.4);
+    z-index: -1;
+}
+
+/* PAGE CONTENT */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    width: 100%;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    color: #fff;
+    text-align: center;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+
+/* --- Dashboard Layout --- */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    width: 90%;
+    max-width: 1200px;
+    height: calc(100% - 100px);
+}
+
+.card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Map Section */
+#map {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    border-radius: 12px;
+}
+
+/* Overlay Controls */
+.map-overlay-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 500;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    width: 200px;
+}
+
+.search-btn {
+    background: #008080;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #006666;
+}
+
+/* Weather Panel */
+.weather-panel {
+    padding: 30px;
+    overflow-y: auto;
+    color: #333;
+}
+
+.weather-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.location-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.current-weather {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.weather-icon-large {
+    font-size: 4rem;
+    color: #008080;
+    margin-bottom: 10px;
+}
+
+.temperature {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.condition {
+    font-size: 1.1rem;
+    color: #666;
+    text-transform: capitalize;
+}
+
+.weather-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.detail-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.forecast-container {
+    margin-top: 25px;
+}
+
+.forecast-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.forecast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.forecast-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.forecast-item:last-child { border-bottom: none; }
+
+.btn-add-trip {
+    width: 100%;
+    padding: 12px;
+    background: #008080;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-add-trip:hover {
+    background: #006666;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    #map {
+        height: 400px;
+    }
+}
+</style>
+
+<div class="container">
+    <div class="title">Explore Destinations</div>
+
+    <div class="dashboard-container">
+        <!-- Left: Map -->
+        <div class="card">
+            <div class="map-overlay-controls">
+                <input type="text" id="locationSearch" class="search-input" placeholder="Search destination (e.g. Paris)">
+                <button class="search-btn" onclick="searchLocation()"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <!-- Right: Weather Panel -->
+        <div class="card weather-panel">
+            <div id="weatherContent">
+                <div class="weather-header">
+                    <h2 class="location-title" id="cityName">Select a Location</h2>
+                    <p style="color: #666;">Click on the map to view weather</p>
+                </div>
+                
+                <div class="current-weather" id="currentWeather" style="display: none;">
+                    <i class="fas fa-cloud-sun weather-icon-large" id="weatherIcon"></i>
+                    <div class="temperature"><span id="tempValue">--</span>°C</div>
+                    <div class="condition" id="weatherDesc">--</div>
+                </div>
+
+                <div class="weather-details" id="weatherDetails" style="display: none;">
+                    <div class="detail-item">
+                        <div class="detail-label">Humidity</div>
+                        <div class="detail-value"><span id="humidity">--</span>%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Wind Speed</div>
+                        <div class="detail-value"><span id="windSpeed">--</span> m/s</div>
+                    </div>
+                </div>
+
+                <div class="forecast-container" id="forecastContainer" style="display: none;">
+                    <h3 class="forecast-title">5-Day Forecast</h3>
+                    <div class="forecast-list" id="forecastList"></div>
+                </div>
+
+                <button class="btn-add-trip" id="addToTripBtn" style="display: none;" onclick="addToTrip()">
+                    <i class="fas fa-plus"></i> Add to Trip Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+const API_KEY = '5428834b76e377a63e2e6c270bb99347';
+const DEFAULT_LAT = 20.5937;
+const DEFAULT_LNG = 78.9629;
+
+let map;
+let currentMarker = null;
+let selectedCity = null;
+
+const destinations = [
+    { name: "Goa", coords: [15.2993, 74.1240], desc: "Beaches, nightlife, and Portuguese heritage." },
+    { name: "Manali", coords: [32.2396, 77.1887], desc: "Himalayan resort town in Himachal Pradesh." },
+    { name: "Jaipur", coords: [26.9124, 75.7873], desc: "The Pink City, known for Hawa Mahal." },
+    { name: "Udaipur", coords: [24.5806, 73.6877], desc: "The City of Lakes and romantic palaces." },
+    { name: "Kerala", coords: [10.8505, 76.2711], desc: "God's Own Country, known for backwaters." },
+    { name: "Leh Ladakh", coords: [34.1526, 77.5771], desc: "High altitude desert with Buddhist monasteries." },
+    { name: "Bali", coords: [-8.4095, 115.1889], desc: "Island of Gods, beaches and coral reefs." },
+    { name: "Paris", coords: [48.8566, 2.3522], desc: "The City of Light and love." },
+    { name: "Dubai", coords: [25.2048, 55.2708], desc: "Luxury shopping, ultramodern architecture." }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+});
+
+function initMap() {
+    map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    destinations.forEach(dest => {
+        const marker = L.marker(dest.coords).addTo(map);
+        marker.bindPopup(`<b>${dest.name}</b><br>${dest.desc}`);
+        marker.on('click', () => {
+            onLocationSelect(dest.name, dest.coords[0], dest.coords[1]);
+        });
+    });
+
+    map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        onLocationSelect("Selected Location", lat, lng);
+    });
+}
+
+function onLocationSelect(name, lat, lng) {
+    selectedCity = { name, lat, lng };
+    map.flyTo([lat, lng], 10, {animate:true, duration:1.5});
+    document.getElementById('cityName').innerText = name;
+
+    document.getElementById('currentWeather').style.display = 'none';
+    document.getElementById('weatherDetails').style.display = 'none';
+    document.getElementById('forecastContainer').style.display = 'none';
+    document.getElementById('addToTripBtn').style.display = 'none';
+    document.querySelector('.weather-header p').innerText = "Fetching weather data...";
+
+    fetchWeather(lat, lng);
+}
+
+async function fetchWeather(lat, lon) {
+    try {
+        const weatherResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+        );
+        const weatherData = await weatherResponse.json();
+
+        const forecastResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+        );
+        const forecastData = await forecastResponse.json();
+
+        updateWeatherUI(weatherData, forecastData);
+    } catch (error) {
+        console.error("Error fetching weather:", error);
+        document.querySelector('.weather-header p').innerText = "Unable to load weather data.";
+    }
+}
+
+function updateWeatherUI(current, forecast) {
+    document.getElementById('weatherIcon').className = getWeatherIcon(current.weather[0].main);
+    document.getElementById('tempValue').innerText = Math.round(current.main.temp);
+    document.getElementById('weatherDesc').innerText = current.weather[0].description;
+    document.getElementById('humidity').innerText = current.main.humidity;
+    document.getElementById('windSpeed').innerText = current.wind.speed;
+
+    document.getElementById('currentWeather').style.display = 'block';
+    document.getElementById('weatherDetails').style.display = 'grid';
+    document.getElementById('addToTripBtn').style.display = 'flex';
+    document.querySelector('.weather-header p').style.display = 'none';
+
+    const forecastList = document.getElementById('forecastList');
+    forecastList.innerHTML = '';
+
+    const dailyForecast = forecast.list.filter((r,i) => i%8===0).slice(0,5);
+    dailyForecast.forEach(day => {
+        const date = new Date(day.dt*1000);
+        const dayName = date.toLocaleDateString('en-US',{weekday:'short'});
+        const iconClass = getWeatherIcon(day.weather[0].main);
+
+        const item = document.createElement('div');
+        item.className = 'forecast-item';
+        item.innerHTML = `<span>${dayName}</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="${iconClass}" style="color:#008080"></i>
+                <span>${Math.round(day.main.temp_max)}° / ${Math.round(day.main.temp_min)}°</span>
+            </div>`;
+        forecastList.appendChild(item);
+    });
+
+    document.getElementById('forecastContainer').style.display = 'block';
+}
+
+function searchLocation() {
+    const query = document.getElementById('locationSearch').value;
+    if(!query) return;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                onLocationSelect(data[0].display_name.split(',')[0], lat, lon);
+            } else {
+                alert('Location not found');
+            }
+        });
+}
+
+function addToTrip() {
+    if(selectedCity) {
+        alert(`${selectedCity.name} added to your Trip Plan!`);
+    }
+}
+
+function getWeatherIcon(condition) {
+    const map = {
+        'Clear':'fas fa-sun',
+        'Clouds':'fas fa-cloud',
+        'Rain':'fas fa-cloud-rain',
+        'Drizzle':'fas fa-cloud-rain',
+        'Thunderstorm':'fas fa-bolt',
+        'Snow':'fas fa-snowflake',
+        'Mist':'fas fa-smog',
+        'Smoke':'fas fa-smog',
+        'Haze':'fas fa-smog',
+        'Dust':'fas fa-smog',
+        'Fog':'fas fa-smog'
+    };
+    return map[condition] || 'fas fa-cloud-sun';
+}
+</script>
+
+{% endblock %}
