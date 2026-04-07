@@ -2,5 +2,4 @@ Flask
 mysql-connector-python
 requests
 pytz
-gunicorn==21.x.x
-gunicorn
+gunicorn==21.2.0
