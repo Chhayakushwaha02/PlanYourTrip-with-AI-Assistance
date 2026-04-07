@@ -3,3 +3,4 @@ mysql-connector-python
 requests
 pytz
 gunicorn==21.2.0
+authlib
